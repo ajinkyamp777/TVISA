@@ -1,4 +1,4 @@
-﻿aiohappyeyeballs==2.6.1
+aiohappyeyeballs==2.6.1
 aiohttp==3.13.5
 aiohttp-retry==2.9.1
 aiosignal==1.4.0
@@ -45,7 +45,7 @@ resend==2.1.0
 setuptools==80.9.0
 six==1.17.0
 sqlparse==0.5.5
-supabase==1.0.0
+supabase>=2.0.0
 standardwebhooks==1.0.1
 svix==1.92.2
 twilio==9.0.0
