@@ -34,9 +34,10 @@ import dj_database_url  # noqa: E402
 # Database configuration – use PostgreSQL if DATABASE_URL is set, otherwise fall back to SQLite for local/dev
 _db_url = config('RDS_DATABASE_URL', default=config('DATABASE_URL', default=''))
 if _db_url:
-    DATABASES = {
-        'default': dj_database_url.parse(_db_url, conn_max_age=600)
-    }
+    _db_config = dj_database_url.parse(_db_url, conn_max_age=600)
+    if not _db_config.get('NAME'):
+        _db_config['NAME'] = 'postgres'
+    DATABASES = {'default': _db_config}
 else:
     # Simple SQLite fallback (useful for local testing of production settings)
     from pathlib import Path

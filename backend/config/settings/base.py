@@ -91,14 +91,18 @@ import dj_database_url  # noqa: E402
 
 DATABASE_URL = config('RDS_DATABASE_URL', default=config('DATABASE_URL', default='sqlite:///db.sqlite3'))
 
-DATABASES = {
-    'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600)
-} if ('postgresql' in DATABASE_URL or 'postgres' in DATABASE_URL) else {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+if ('postgresql' in DATABASE_URL or 'postgres' in DATABASE_URL):
+    _db_config = dj_database_url.parse(DATABASE_URL, conn_max_age=600)
+    if not _db_config.get('NAME'):
+        _db_config['NAME'] = 'postgres'
+    DATABASES = {'default': _db_config}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
     }
-}
 
 # ──────────────────────────────────────────────
 # Auth
