@@ -93,7 +93,7 @@ DATABASE_URL = config('RDS_DATABASE_URL', default=config('DATABASE_URL', default
 
 DATABASES = {
     'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600)
-} if 'postgresql' in DATABASE_URL else {
+} if ('postgresql' in DATABASE_URL or 'postgres' in DATABASE_URL) else {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',

@@ -9,7 +9,13 @@ DEBUG = False
 ALLOWED_HOSTS = config(
     'ALLOWED_HOSTS',
     default='localhost,127.0.0.1,.onrender.com',
-    cast=lambda v: [s.strip() for s in v.split(',')]
+    cast=lambda v: [s.strip() for s in v.split(',') if s.strip()]
+)
+
+CSRF_TRUSTED_ORIGINS = config(
+    'CSRF_TRUSTED_ORIGINS',
+    default='https://*.onrender.com,https://*.vercel.app',
+    cast=lambda v: [s.strip() for s in v.split(',') if s.strip()]
 )
 
 # Security
