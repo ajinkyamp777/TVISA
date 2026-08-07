@@ -6,9 +6,6 @@ on:
       - main
       - master
       - Preview
-    paths:
-      - 'backend/**'
-      - '.github/workflows/deploy-backend-render.yml'
   workflow_dispatch:
 
 env:
