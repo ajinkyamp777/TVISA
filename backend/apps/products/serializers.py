@@ -58,7 +58,9 @@ class ProductListSerializer(serializers.ModelSerializer):
             primary = next((img for img in images if img.is_primary), None)
             img = primary or (images[0] if images else None)
             return img.image_url if img else ''
-        return ''
+        # Fallback 2: Query relation if not annotated/prefetched
+        img = obj.images.filter(is_primary=True).first() or obj.images.first()
+        return img.image_url if img else ''
 
     def get_min_price(self, obj):
         # Prefer DB annotation; else fall back to base_price

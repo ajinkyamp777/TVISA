@@ -5,6 +5,9 @@ from django.db import models
 def image_field_url(field):
     if not field:
         return ''
+    val = str(field)
+    if val.startswith('http://') or val.startswith('https://'):
+        return val
     try:
         return field.url
     except ValueError:
