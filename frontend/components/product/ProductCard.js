@@ -15,63 +15,49 @@ export default function ProductCard({ product }) {
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            className="group block cursor-pointer"
+            className="group flex flex-col gap-4 cursor-pointer"
         >
             <Link href={`/products/${product.id}`} className="block">
-                {/* Image Container - Aspect 4/5 for elegant Jewex style */}
-                <div className="relative w-full aspect-[4/5] bg-[#F3EFEA] overflow-hidden mb-4">
+                <div className="aspect-[3/4] bg-surface-container-high overflow-hidden relative mb-3 border border-outline-variant/10">
                     {primaryImage ? (
                         <Image
                             src={primaryImage}
-                            alt={product.name}
+                            alt={product.name || 'Product'}
                             fill
-                            className="object-cover object-center transition-transform duration-700 ease-in-out group-hover:scale-105"
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                             sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
                         />
                     ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                            <FiShoppingBag size={40} className="text-[#8C7C66] opacity-50" />
+                        <div className="w-full h-full flex items-center justify-center bg-surface-container-low text-outline">
+                            <FiShoppingBag size={32} />
                         </div>
                     )}
 
-                    {/* Minimalist Hover Overlay for actions */}
-                    <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                    
-                    {/* Quick actions overlay */}
                     <button
                         onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
                         }}
-                        className="absolute top-3 right-3 p-2 bg-white/90 backdrop-blur-sm rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-[#31271D] hover:text-[#F9F6F0] text-[#31271D]"
+                        className="absolute top-3 right-3 p-2 bg-surface/90 backdrop-blur-sm rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-primary hover:text-surface text-primary"
                         aria-label="Add to wishlist"
                     >
                         <FiHeart size={16} />
                     </button>
                 </div>
 
-                {/* Minimalist Product Info */}
-                <div className="flex justify-between items-start">
-                    <div className="pr-4">
-                        <h3 className="font-jost text-[13px] sm:text-[14px] text-[#31271D] font-medium leading-snug line-clamp-2">
-                            {product.name}
-                        </h3>
-                        <p className="font-jost text-[12px] text-[#8C7C66] mt-1 uppercase tracking-wider">
-                            {product.category_name || 'Jewelry'}
-                        </p>
-                    </div>
-                    <div className="text-right flex-shrink-0">
-                        <div className="font-jost text-[13px] sm:text-[14px] flex flex-col items-end">
-                            {(product.discounted_price && Number(product.discounted_price) > 0) ? (
-                                <>
-                                    <span className="text-[#31271D] font-medium">₹{Number(product.discounted_price).toLocaleString('en-IN')}</span>
-                                    <span className="text-[#8C7C66] line-through text-[11px] mt-0.5">₹{Number(price).toLocaleString('en-IN')}</span>
-                                </>
-                            ) : (
-                                <span className="text-[#31271D] font-medium">₹{Number(price).toLocaleString('en-IN')}</span>
-                            )}
-                        </div>
-                    </div>
+                <div className="flex justify-between items-center text-primary">
+                    <span className="text-xs uppercase tracking-widest truncate font-medium max-w-[70%]">
+                        {product.name || 'Heritage Item'}
+                    </span>
+                    <span className="text-sm font-body">
+                        {(product.discounted_price && Number(product.discounted_price) > 0) ? (
+                            <span>₹{Number(product.discounted_price).toLocaleString('en-IN')}</span>
+                        ) : price ? (
+                            <span>₹{Number(price).toLocaleString('en-IN')}</span>
+                        ) : (
+                            <span>$1,250</span>
+                        )}
+                    </span>
                 </div>
             </Link>
         </motion.div>

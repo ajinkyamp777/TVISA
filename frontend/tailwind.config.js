@@ -8,6 +8,19 @@ module.exports = {
     theme: {
         extend: {
             colors: {
+                'primary': '#150f08',
+                'primary-container': '#2b241c',
+                'secondary': '#735b31',
+                'on-primary': '#ffffff',
+                'on-secondary': '#ffffff',
+                'surface': '#fdf9f2',
+                'surface-container-low': '#f7f3ec',
+                'surface-container-high': '#ebe8e1',
+                'on-surface': '#1c1c18',
+                'on-surface-variant': '#4c463f',
+                'outline': '#7e766e',
+                'outline-variant': '#cfc5bc',
+                'error': '#ba1a1a',
                 'deep-rose': '#8B1D52',
                 'rose-pink': '#C96B8A',
                 'blush': '#F2C4D0',
@@ -16,7 +29,18 @@ module.exports = {
                 'noir': '#1A0A10',
                 'mid': '#6B3A4A',
             },
+            spacing: {
+                'stack-lg': '80px',
+                'stack-md': '40px',
+                'stack-sm': '16px',
+                'margin-desktop': '64px',
+                'margin-mobile': '20px',
+                'gutter': '24px',
+                'container-max': '1280px',
+            },
             fontFamily: {
+                display: ['Playfair Display', 'serif'],
+                body: ['Inter', 'sans-serif'],
                 cormorant: ['var(--font-cormorant)', 'Cormorant Garamond', 'serif'],
                 jost: ['var(--font-jost)', 'Jost', 'sans-serif'],
             },
@@ -48,3 +72,4 @@ module.exports = {
     },
     plugins: [],
 };
+

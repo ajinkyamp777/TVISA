@@ -1,10 +1,9 @@
 import Link from 'next/link';
-import { FiArrowRight } from 'react-icons/fi';
+import ProductCard from '@/components/product/ProductCard';
 
-// Cache all categories for 24 hours at the Edge
-export const revalidate = 86400;
+export const revalidate = 3600;
 
-async function getCategories() {
+async function getProducts() {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
     if (!apiUrl) return [];
 
@@ -12,8 +11,8 @@ async function getCategories() {
     const timeoutId = setTimeout(() => controller.abort(), 10000);
 
     try {
-        const res = await fetch(`${apiUrl}/categories/`, {
-            next: { tags: ['categories'] }, // Allows on-demand revalidation from Django
+        const res = await fetch(`${apiUrl}/products/`, {
+            next: { tags: ['products'] },
             signal: controller.signal,
         });
         if (!res.ok) return [];
@@ -26,48 +25,65 @@ async function getCategories() {
     }
 }
 
-export default async function CategoriesPage() {
-    const categories = await getCategories();
+export default async function CollectionsPage() {
+    const fetchedProducts = await getProducts();
+
+    const fallbackProducts = [
+        {
+            id: 'aura',
+            name: 'Aura Pendant',
+            base_price: 1250,
+            primary_image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCPBQyGmUfsGgEWM6PtWeKDWt-dvGgfhLX9bm4UmFKzNDT2ysxCWDxUUwxM9MIYjwb9SKQ5YWNCRJA59fcZvbsrDMTgog6J0V8GcX5T4gbcoptomUf_2yOQY6NGeX2h6A5L-ugk_UdOzd4TYojRK29jJDnrEPJ2YNJZF59j17ow16rwGCg9VsxLPh9ZexLepSGq8Ou-3Cp1h2629Z9TLfl_btHILikU775cQzsTaqx_wZwBysKPElSkuQ'
+        },
+        {
+            id: 'structural',
+            name: 'Structural Cuff',
+            base_price: 890,
+            primary_image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAoVEZcWcQQiuZEbz-CpBIAXO0-lxn0kQIFfSmgG1C1f0QSZk45xRfxzVQINj2l5sSL9OeDmVlznf3TOdYgl3dYuufGnr8-V7phRfNWATXT0W2Ut-l3TFAIwaCPjEp89t-wxy0EGOULOsPjkRbdK7v8OVYC5L3f2D_PDX1Gwno_pu2WDjPMouvfXE6BEM3uNtuN08GQDvJuZ_wflOe0m_fDfzhR6CJ-Eo2ZxjWOEiNpxaGjEF1lsn2loQ'
+        },
+        {
+            id: 'blank',
+            name: 'Blank Signet',
+            base_price: 650,
+            primary_image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCapVNDhymCbrQwEqVP8HLIXtlasN8Kf6ysO50g8fcBpcD3gdV71zKbXrlVxM3_b6s2EvW43t9d8v32hFcTKHMH5dSMMReEQJN2-K5dJ4kotFpOpvDY9RDkdTVG-mbEKlA80jxUpOPiF8ao8j1J047BnLhsjGYgUcwwekZIegS3irtGPkBFmJ_i0kucfJfv227j7JW93uMw-66cY2OsAgaTONvy79LHmX-Ad6jk9A4V4C_YouQOJB3Vcg'
+        }
+    ];
+
+    const products = fetchedProducts.length > 0 ? fetchedProducts : fallbackProducts;
 
     return (
-        <div className="max-w-7xl mx-auto px-4 py-12">
-            <div className="text-center mb-14">
-                <p className="text-gold text-sm tracking-[0.3em] uppercase font-jost font-light mb-3">Browse</p>
-                <h1 className="font-cormorant text-4xl sm:text-5xl text-noir">All Collections</h1>
-            </div>
+        <div className="flex flex-col min-h-screen pt-20 bg-surface text-primary">
+            <main className="flex-grow pt-10 pb-stack-lg px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto w-full">
+                {/* Header */}
+                <div className="text-center mb-stack-lg">
+                    <h1 className="font-display text-4xl md:text-5xl mb-stack-sm tracking-tight text-primary">
+                        The Heritage Collection
+                    </h1>
+                    <p className="text-on-surface-variant max-w-2xl mx-auto text-sm md:text-base font-light">
+                        Discover timeless elegance forged in precious metals. A curation designed to transcend seasons.
+                    </p>
+                </div>
 
-            {categories.length === 0 ? (
-                <div className="text-center py-20 text-mid">No categories found.</div>
-            ) : (
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                    {categories.map((cat) => (
-                        <Link
-                            key={cat.id}
-                            href={`/categories/${cat.slug}`}
-                            className="group block bg-white border border-blush/50 hover:border-deep-rose/30 hover:shadow-lg transition-all"
-                        >
-                            <div className="aspect-[3/4] bg-petal flex items-center justify-center">
-                                <div className="text-center p-6">
-                                    <h2 className="font-cormorant text-2xl text-noir group-hover:text-deep-rose transition-colors mb-2">
-                                        {cat.name}
-                                    </h2>
-                                    <p className="text-xs text-mid font-light mb-3">{cat.product_count || 0} products</p>
-                                    {cat.subcategories?.length > 0 && (
-                                        <div className="space-y-1 mb-4 hidden sm:block">
-                                            {cat.subcategories.slice(0, 3).map((sub) => (
-                                                <p key={sub.id} className="text-xs text-mid/60">{sub.name}</p>
-                                            ))}
-                                        </div>
-                                    )}
-                                    <span className="inline-flex items-center text-xs text-deep-rose font-jost tracking-wider uppercase mt-2">
-                                        Shop Now <FiArrowRight className="ml-1" size={12} />
-                                    </span>
-                                </div>
-                            </div>
-                        </Link>
+                {/* Filter bar */}
+                <div className="flex justify-between items-center border-y border-outline/20 py-4 mb-stack-lg">
+                    <div className="flex gap-4 items-center">
+                        <span className="text-[10px] uppercase tracking-widest text-outline font-semibold">Filter:</span>
+                        <button className="text-xs uppercase tracking-wider flex items-center gap-1 text-on-surface-variant hover:text-primary">
+                            Category <span className="material-symbols-outlined text-[14px]">expand_more</span>
+                        </button>
+                    </div>
+                    <button className="text-xs uppercase tracking-wider flex items-center gap-1 text-on-surface-variant hover:text-primary">
+                        Featured <span className="material-symbols-outlined text-[14px]">expand_more</span>
+                    </button>
+                </div>
+
+                {/* Products Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-gutter gap-y-stack-lg">
+                    {products.map((p) => (
+                        <ProductCard key={p.id} product={p} />
                     ))}
                 </div>
-            )}
+            </main>
         </div>
     );
 }

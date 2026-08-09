@@ -1,11 +1,24 @@
-import { Cormorant_Garamond, Jost } from 'next/font/google';
+import { Playfair_Display, Inter, Cormorant_Garamond, Jost } from 'next/font/google';
 import './globals.css';
 import Providers from '@/providers/Providers';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
-import AnnouncementBar from '@/components/layout/AnnouncementBar';
 import FloatingWhatsApp from '@/components/layout/FloatingWhatsApp';
 import { Toaster } from 'react-hot-toast';
+
+const playfair = Playfair_Display({
+    subsets: ['latin'],
+    weight: ['400', '500', '600', '700'],
+    variable: '--font-playfair',
+    display: 'swap',
+});
+
+const inter = Inter({
+    subsets: ['latin'],
+    weight: ['300', '400', '500', '600'],
+    variable: '--font-inter',
+    display: 'swap',
+});
 
 const cormorant = Cormorant_Garamond({
     subsets: ['latin'],
@@ -23,27 +36,27 @@ const jost = Jost({
 });
 
 export const metadata = {
-    title: 'Tvisaa - For You',
-    description: 'Discover BIS hallmarked fine jewelry. Handcrafted rings, necklaces, bangles, earrings & bracelets in gold, diamond & silver. Free shipping on all orders.',
-    keywords: 'jewelry, gold, diamond, silver, rings, necklaces, bangles, earrings, bracelets, BIS hallmarked',
+    title: 'Tvisaa - Handcrafted Luxury Jewelry',
+    description: 'Discover timeless elegance forged in precious metals. Handcrafted rings, necklaces, bangles, earrings & bracelets. Free shipping on all orders.',
+    keywords: 'jewelry, gold, diamond, silver, rings, necklaces, bangles, earrings, bracelets, BIS hallmarked, luxury jewelry',
     openGraph: {
-        title: 'Tvisaa - For You',
-        description: 'Discover BIS hallmarked fine jewelry with free shipping on all orders.',
+        title: 'Tvisaa - Handcrafted Luxury Jewelry',
+        description: 'Discover timeless elegance forged in precious metals with free shipping on all orders.',
         type: 'website',
     },
 };
 
 export default function RootLayout({ children }) {
     return (
-        <html lang="en" className={`${cormorant.variable} ${jost.variable}`}>
+        <html lang="en" className={`${playfair.variable} ${inter.variable} ${cormorant.variable} ${jost.variable}`}>
             <head>
                 <link rel="icon" href="/images/logo.png" />
+                <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
             </head>
-            <body className="font-jost bg-petal text-noir antialiased">
+            <body className="font-body bg-surface text-primary antialiased">
                 <Providers>
-                    {/* <AnnouncementBar /> */}
                     <Navbar />
-                    <main className="min-h-screen pt-16 lg:pt-24">{children}</main>
+                    <main className="min-h-screen">{children}</main>
                     <Footer />
                     <FloatingWhatsApp />
                     <Toaster
@@ -51,12 +64,12 @@ export default function RootLayout({ children }) {
                         toastOptions={{
                             duration: 4000,
                             style: {
-                                background: '#1A0A10',
-                                color: '#FAF0F3',
-                                fontFamily: 'var(--font-jost)',
+                                background: '#150f08',
+                                color: '#fdf9f2',
+                                fontFamily: 'var(--font-inter), sans-serif',
                             },
-                            success: { iconTheme: { primary: '#C9A86C', secondary: '#1A0A10' } },
-                            error: { iconTheme: { primary: '#8B1D52', secondary: '#FAF0F3' } },
+                            success: { iconTheme: { primary: '#735b31', secondary: '#150f08' } },
+                            error: { iconTheme: { primary: '#ba1a1a', secondary: '#fdf9f2' } },
                         }}
                     />
                 </Providers>
@@ -64,3 +77,4 @@ export default function RootLayout({ children }) {
         </html>
     );
 }
+
