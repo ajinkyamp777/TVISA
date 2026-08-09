@@ -11,6 +11,8 @@ ALLOWED_HOSTS = config(
     default='localhost,127.0.0.1,.onrender.com',
     cast=lambda v: [s.strip() for s in v.split(',') if s.strip()]
 )
+if '.onrender.com' not in ALLOWED_HOSTS and '*' not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append('.onrender.com')
 
 CSRF_TRUSTED_ORIGINS = config(
     'CSRF_TRUSTED_ORIGINS',
