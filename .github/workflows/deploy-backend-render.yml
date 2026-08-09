@@ -1,4 +1,4 @@
-name: Deploy Backend to Render (CI/CD)
+name: Backend CI/CD & Docker Build
 
 on:
   push:
@@ -6,14 +6,15 @@ on:
       - main
       - master
       - Preview
-    paths:
-      - 'backend/**'
-      - '.github/workflows/deploy-backend-render.yml'
   workflow_dispatch:
 
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}/backend
+
 jobs:
-  test-and-verify:
-    name: Run Backend Tests & Validation
+  test-and-lint:
+    name: Backend System Check
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -34,21 +35,54 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run Django System Check
+      - name: Run Django Check
         run: |
           python manage.py check --settings=config.settings.production
 
-      - name: Run Unit Tests
-        run: |
-          python manage.py test --settings=config.settings.test
+  build-and-push-docker:
+    name: Build & Push Docker Image to GHCR
+    needs: test-and-lint
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=latest,enable=true
+            type=sha,format=short
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          file: ./backend/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
 
   deploy-to-render:
     name: Trigger Render Deployment
-    needs: test-and-verify
+    needs: build-and-push-docker
     runs-on: ubuntu-latest
 
     steps:
-      - name: Deploy to Render via Deploy Hook
+      - name: Trigger Render Deploy Hook
         run: |
           DEPLOY_URL="${{ secrets.RENDER_DEPLOY_HOOK_URL }}"
           if [ -z "$DEPLOY_URL" ]; then

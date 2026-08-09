@@ -5,7 +5,7 @@ echo "Collecting static files..."
 python manage.py collectstatic --noinput
 
 echo "Running migrations..."
-python manage.py migrate --noinput
+python manage.py migrate --fake-initial --noinput
 
 echo "Starting server..."
 exec gunicorn \

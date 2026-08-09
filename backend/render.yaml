@@ -4,7 +4,7 @@ services:
     runtime: python
     region: singapore # or oregon, frankfurt, etc.
     rootDir: backend
-    buildCommand: "pip install -r requirements.txt && python manage.py collectstatic --settings=config.settings.production --noinput && python manage.py migrate --settings=config.settings.production --noinput"
+    buildCommand: "pip install -r requirements.txt && python manage.py collectstatic --settings=config.settings.production --noinput && python manage.py migrate --settings=config.settings.production --fake-initial --noinput"
     startCommand: "gunicorn config.wsgi:application --bind 0.0.0.0:$PORT"
     envVars:
       - key: DJANGO_SETTINGS_MODULE

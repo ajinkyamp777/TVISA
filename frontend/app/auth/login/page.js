@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import Image from 'next/image';
 import { authAPI, extractErrorMessage } from '@/lib/api';
 import { checkAndRecord, clearAttempts } from '@/lib/rateLimit';
 import toast from 'react-hot-toast';
@@ -13,10 +12,10 @@ export default function LoginPage() {
     const router = useRouter();
     const [form, setForm] = useState({ email: '', password: '' });
     const [loading, setLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
     const [rateLimited, setRateLimited] = useState(false);
     const [waitSeconds, setWaitSeconds] = useState(0);
 
-    // Countdown timer when rate-limited
     useEffect(() => {
         if (waitSeconds <= 0) {
             setRateLimited(false);
@@ -33,24 +32,18 @@ export default function LoginPage() {
             return;
         }
 
-        // Client-side rate limit check (mirrors backend 5/min limit)
         const { limited, waitSeconds: wait } = checkAndRecord('login');
         if (limited) {
             setRateLimited(true);
             setWaitSeconds(wait);
-            toast.error(`Too many login attempts. Please wait ${wait} seconds.`, {
-                icon: '🚦',
-                duration: 5000,
-            });
+            toast.error(`Too many login attempts. Please wait ${wait} seconds.`);
             return;
         }
 
         setLoading(true);
         try {
-            // First, try to login via the Django API directly to get proper error messages
             await authAPI.login(form);
 
-            // If API login succeeds, use NextAuth to create the session
             const result = await signIn('credentials', {
                 redirect: false,
                 email: form.email,
@@ -69,11 +62,9 @@ export default function LoginPage() {
         } catch (err) {
             const details = err.response?.data?.details;
             if (err.response?.status === 429) {
-                // Backend 429 — already handled by the API client toast
                 setRateLimited(true);
                 setWaitSeconds(60);
             } else if (details?.email_not_verified) {
-                // Redirect to OTP verification page
                 toast.error('Please verify your email first');
                 router.push(`/auth/verify-email?email=${encodeURIComponent(form.email)}`);
             } else {
@@ -86,64 +77,76 @@ export default function LoginPage() {
     const isDisabled = loading || rateLimited;
 
     return (
-        <div className="min-h-[80vh] flex items-center justify-center px-4 py-12">
-            <div className="w-full max-w-md">
-                <div className="text-center mb-10">
-                    <Image src="/images/logo.png" alt="Lumière Jewels" width={160} height={40} className="h-10 w-auto mx-auto mb-6" />
-                    <h1 className="font-cormorant text-3xl text-noir">Welcome Back</h1>
-                    <p className="text-sm text-mid font-light mt-2">Sign in to your account</p>
+        <div className="flex flex-col min-h-screen items-center justify-center bg-surface-container-low px-margin-mobile py-stack-lg text-primary">
+            <Link href="/" className="font-display text-4xl mb-12 tracking-tight">Tvisaa</Link>
+            
+            <div className="w-full max-w-[400px] flex flex-col gap-10">
+                <div className="text-center">
+                    <h1 className="font-display text-3xl mb-2">Sign In</h1>
+                    <p className="text-on-surface-variant text-sm font-light">Enter your details to access your atelier.</p>
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-5">
+                <form className="flex flex-col gap-6" onSubmit={handleSubmit}>
                     <div>
-                        <label className="block text-xs text-mid uppercase tracking-wider mb-2">Email</label>
                         <input
                             type="email"
+                            placeholder="EMAIL ADDRESS"
                             value={form.email}
                             onChange={(e) => setForm({ ...form, email: e.target.value })}
-                            className="w-full px-4 py-3 border border-blush bg-white text-noir text-sm font-jost outline-none focus:border-deep-rose transition-colors"
-                            placeholder="you@example.com"
+                            className="w-full bg-transparent border-0 border-b border-outline py-2 text-xs uppercase tracking-wider text-primary focus:ring-0 focus:border-primary transition-colors outline-none"
                             required
                             disabled={isDisabled}
                         />
                     </div>
-                    <div>
-                        <label className="block text-xs text-mid uppercase tracking-wider mb-2">Password</label>
+
+                    <div className="relative">
                         <input
-                            type="password"
+                            type={showPassword ? 'text' : 'password'}
+                            placeholder="PASSWORD"
                             value={form.password}
                             onChange={(e) => setForm({ ...form, password: e.target.value })}
-                            className="w-full px-4 py-3 border border-blush bg-white text-noir text-sm font-jost outline-none focus:border-deep-rose transition-colors"
-                            placeholder="••••••••"
+                            className="w-full bg-transparent border-0 border-b border-outline py-2 text-xs uppercase tracking-wider text-primary focus:ring-0 focus:border-primary transition-colors outline-none pr-8"
                             required
                             disabled={isDisabled}
                         />
+                        <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-0 bottom-2 text-outline hover:text-primary transition-colors"
+                        >
+                            <span className="material-symbols-outlined text-lg">
+                                {showPassword ? 'visibility' : 'visibility_off'}
+                            </span>
+                        </button>
                     </div>
 
                     {rateLimited && waitSeconds > 0 && (
-                        <p className="text-xs text-center text-deep-rose/80 font-jost">
-                            🚦 Too many attempts. Try again in{' '}
-                            <span className="font-semibold">{waitSeconds}s</span>
+                        <p className="text-xs text-center text-error font-body">
+                            Too many attempts. Try again in <span className="font-bold">{waitSeconds}s</span>
                         </p>
                     )}
 
                     <button
                         type="submit"
                         disabled={isDisabled}
-                        className="w-full bg-deep-rose text-white py-3.5 text-sm font-jost font-medium tracking-wider uppercase hover:bg-deep-rose/90 transition-colors disabled:opacity-50"
+                        className="w-full py-4 border border-primary uppercase tracking-widest text-xs hover:bg-primary hover:text-white transition-all mt-4 font-semibold disabled:opacity-50"
                     >
-                        {loading
-                            ? 'Signing In...'
-                            : rateLimited && waitSeconds > 0
-                            ? `Try again in ${waitSeconds}s`
-                            : 'Sign In'}
+                        {loading ? 'Signing In...' : rateLimited && waitSeconds > 0 ? `Wait ${waitSeconds}s` : 'Sign In'}
                     </button>
                 </form>
 
-                <p className="text-center text-sm text-mid mt-8">
-                    Don&apos;t have an account?{' '}
-                    <Link href="/auth/register" className="text-deep-rose hover:underline">Create one</Link>
-                </p>
+                <div className="flex items-center gap-4">
+                    <div className="h-px bg-outline/20 flex-grow"></div>
+                    <span className="text-[10px] text-outline uppercase tracking-widest">OR</span>
+                    <div className="h-px bg-outline/20 flex-grow"></div>
+                </div>
+
+                <Link
+                    href="/auth/register"
+                    className="w-full py-4 border border-outline/30 uppercase tracking-widest text-xs text-center hover:border-primary transition-colors font-semibold"
+                >
+                    Create Account
+                </Link>
             </div>
         </div>
     );

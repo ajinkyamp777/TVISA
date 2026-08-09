@@ -11,6 +11,8 @@ ALLOWED_HOSTS = config(
     default='localhost,127.0.0.1,.onrender.com',
     cast=lambda v: [s.strip() for s in v.split(',') if s.strip()]
 )
+if '.onrender.com' not in ALLOWED_HOSTS and '*' not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append('.onrender.com')
 
 CSRF_TRUSTED_ORIGINS = config(
     'CSRF_TRUSTED_ORIGINS',
@@ -34,9 +36,10 @@ import dj_database_url  # noqa: E402
 # Database configuration – use PostgreSQL if DATABASE_URL is set, otherwise fall back to SQLite for local/dev
 _db_url = config('RDS_DATABASE_URL', default=config('DATABASE_URL', default=''))
 if _db_url:
-    DATABASES = {
-        'default': dj_database_url.parse(_db_url, conn_max_age=600)
-    }
+    _db_config = dj_database_url.parse(_db_url, conn_max_age=600)
+    if not _db_config.get('NAME'):
+        _db_config['NAME'] = 'postgres'
+    DATABASES = {'default': _db_config}
 else:
     # Simple SQLite fallback (useful for local testing of production settings)
     from pathlib import Path
