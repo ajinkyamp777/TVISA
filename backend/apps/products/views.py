@@ -287,8 +287,8 @@ class HomepageDataView(APIView):
     def _get_products(self, filter_kwargs, limit=8):
         qs = Product.objects.filter(
             is_active=True, **filter_kwargs
-        ).select_related('category', 'subcategory').order_by('-updated_at', '-created_at')[:limit]
-        return annotate_product_list(qs)
+        ).select_related('category', 'subcategory').order_by('-updated_at', '-created_at')
+        return annotate_product_list(qs)[:limit]
 
     def get(self, request):
         hero_sliders = list(HeroSlider.objects.filter(is_active=True).order_by('display_order'))
